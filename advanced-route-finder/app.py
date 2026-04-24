@@ -132,28 +132,6 @@ def astar(graph, pos, start, goal, heuristic_fn="euclidean"):
     return {"visited": visited, "path": [], "cost": 0, "node_details": {}, "heuristics": {}}
 
 
-# ─── Dijkstra ──────────────────────────────────────────────────────────────────
-def dijkstra(graph, start, goal):
-    heap    = [(0, start, [start])]
-    visited = []
-    seen    = set()
-    dist    = {start: 0}
-    while heap:
-        cost, node, path = heapq.heappop(heap)
-        if node in seen:
-            continue
-        seen.add(node)
-        visited.append(node)
-        if node == goal:
-            return {"visited": visited, "path": path, "cost": round(cost, 1)}
-        for neighbor, weight in graph.get(node, {}).items():
-            new_cost = cost + weight
-            if neighbor not in seen and new_cost < dist.get(neighbor, float('inf')):
-                dist[neighbor] = new_cost
-                heapq.heappush(heap, (new_cost, neighbor, path + [neighbor]))
-    return {"visited": visited, "path": [], "cost": 0}
-
-
 # ─── Greedy Best-First Search ──────────────────────────────────────────────────
 def greedy(graph, pos, start, goal):
     h0   = euclidean(pos, start, goal)
@@ -172,56 +150,6 @@ def greedy(graph, pos, start, goal):
             if neighbor not in seen:
                 hn = euclidean(pos, neighbor, goal)
                 heapq.heappush(heap, (hn, neighbor, path + [neighbor], cost + weight))
-    return {"visited": visited, "path": [], "cost": 0}
-
-
-# ─── Bidirectional BFS ─────────────────────────────────────────────────────────
-def bidirectional_bfs(graph, start, goal):
-    if start == goal:
-        return {"visited": [start], "path": [start], "cost": 0}
-
-    # Build reverse graph
-    rev = {n: {} for n in graph}
-    for n, nbrs in graph.items():
-        for nb, w in nbrs.items():
-            rev[nb][n] = w
-
-    fwd_q   = deque([(start, [start], 0)])
-    bwd_q   = deque([(goal,  [goal],  0)])
-    fwd_vis = {start: ([start], 0)}
-    bwd_vis = {goal:  ([goal],  0)}
-    visited = []
-
-    def expand(q, vis, other_vis, rev_graph=False):
-        if not q:
-            return None
-        node, path, cost = q.popleft()
-        visited.append(node)
-        g = graph if not rev_graph else rev
-        for nb, w in g.get(node, {}).items():
-            if nb not in vis:
-                new_cost = cost + w
-                new_path = path + [nb]
-                vis[nb]  = (new_path, new_cost)
-                q.append((nb, new_path, new_cost))
-                if nb in other_vis:
-                    return nb
-        return None
-
-    while fwd_q or bwd_q:
-        meet = expand(fwd_q, fwd_vis, bwd_vis, False)
-        if meet:
-            fp, fc = fwd_vis[meet]
-            bp, bc = bwd_vis[meet]
-            full_path = fp + list(reversed(bp[:-1]))
-            return {"visited": visited, "path": full_path, "cost": round(fc + bc, 1)}
-        meet = expand(bwd_q, bwd_vis, fwd_vis, True)
-        if meet:
-            fp, fc = fwd_vis[meet]
-            bp, bc = bwd_vis[meet]
-            full_path = fp + list(reversed(bp[:-1]))
-            return {"visited": visited, "path": full_path, "cost": round(fc + bc, 1)}
-
     return {"visited": visited, "path": [], "cost": 0}
 
 
@@ -285,12 +213,8 @@ def search():
         result = dfs(graph, start, goal)
     elif algo == "astar":
         result = astar(graph, pos, start, goal, heur)
-    elif algo == "dijkstra":
-        result = dijkstra(graph, start, goal)
     elif algo == "greedy":
         result = greedy(graph, pos, start, goal)
-    elif algo == "bibfs":
-        result = bidirectional_bfs(graph, start, goal)
     elif algo == "allpaths":
         result = all_shortest_paths(graph, start, goal)
     else:
@@ -332,7 +256,7 @@ def compare():
         return jsonify({"error": "Invalid nodes"}), 400
 
     results = {}
-    algos   = ["bfs", "dfs", "astar", "dijkstra", "greedy", "bibfs"]
+    algos   = ["bfs", "dfs", "astar", "greedy"]
     for algo in algos:
         t0 = time.perf_counter()
         if algo == "bfs":
@@ -341,12 +265,8 @@ def compare():
             r = dfs(graph, start, goal)
         elif algo == "astar":
             r = astar(graph, pos, start, goal)
-        elif algo == "dijkstra":
-            r = dijkstra(graph, start, goal)
         elif algo == "greedy":
             r = greedy(graph, pos, start, goal)
-        elif algo == "bibfs":
-            r = bidirectional_bfs(graph, start, goal)
         elapsed = round((time.perf_counter() - t0) * 1000, 3)
         results[algo] = {
             "path":        r.get("path", []),
