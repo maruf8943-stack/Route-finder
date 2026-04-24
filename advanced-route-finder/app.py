@@ -4,7 +4,7 @@ import heapq
 import math
 from collections import deque
 import time
-
+import os
 app = Flask(__name__)
 CORS(app)
 
@@ -398,5 +398,7 @@ def index():
     return render_template("index.html")
 
 
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
