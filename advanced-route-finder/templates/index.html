@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Route Finder Visualizer</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Top Bar ─────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="brand">🗺 Advanced Route Finder</div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="visualize">Visualizer</button>
+      <button class="tab-btn" data-tab="compare">Compare</button>
+      <button class="tab-btn" data-tab="custom">Custom Graph</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB 1 – VISUALIZER                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="tab-visualize" class="tab-content active">
+    <div class="panel">
+
+      <!-- controls row -->
+      <div class="ctrl-bar">
+        <!-- Algorithm selector -->
+        <div class="ctrl-group">
+          <label class="ctrl-label">Algorithm</label>
+          <div class="algo-btns">
+            <button class="algo-btn active" data-algo="bfs">BFS</button>
+            <button class="algo-btn" data-algo="dfs">DFS</button>
+            <button class="algo-btn" data-algo="dijkstra">Dijkstra</button>
+            <button class="algo-btn" data-algo="astar">A*</button>
+            <button class="algo-btn" data-algo="greedy">Greedy</button>
+            <button class="algo-btn" data-algo="bibfs">Bi-BFS</button>
+            <button class="algo-btn" data-algo="allpaths">All Paths</button>
+          </div>
+        </div>
+
+        <!-- Heuristic (A* / Greedy) -->
+        <div class="ctrl-group" id="heur-group">
+          <label class="ctrl-label">Heuristic</label>
+          <select id="heurSelect">
+            <option value="euclidean">Euclidean</option>
+            <option value="manhattan">Manhattan</option>
+          </select>
+        </div>
+
+        <!-- Speed -->
+        <div class="ctrl-group">
+          <label class="ctrl-label">Speed</label>
+          <input type="range" id="speedRange" min="100" max="1500" step="100" value="600">
+          <span id="speedValue">600 ms</span>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="ctrl-group">
+          <button id="runBtn"   class="btn btn-run">▶ Run</button>
+          <button id="stepBtn"  class="btn btn-step">⏭ Step</button>
+          <button id="resetBtn" class="btn btn-reset">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span>Start: <strong id="startName">—</strong></span>
+        <span>End: <strong id="endName">—</strong></span>
+        <span id="statusText">Click a node to set Start, then another for Destination.</span>
+      </div>
+
+      <!-- Info box -->
+      <div class="info-box">
+        <span><b>BFS</b> – shortest hops &nbsp;|&nbsp;
+              <b>DFS</b> – deep-first &nbsp;|&nbsp;
+              <b>Dijkstra</b> – optimal cost &nbsp;|&nbsp;
+              <b>A*</b> – cost + heuristic &nbsp;|&nbsp;
+              <b>Greedy</b> – heuristic only &nbsp;|&nbsp;
+              <b>Bi-BFS</b> – search from both ends &nbsp;|&nbsp;
+              <b>All Paths</b> – all shortest cost paths
+        </span>
+      </div>
+
+      <!-- Graph canvas -->
+      <div class="map-wrap">
+        <div class="map-box" id="mapBox">
+          <svg id="edgeSvg"  class="edge-svg"  viewBox="0 0 900 520" preserveAspectRatio="none"></svg>
+          <svg id="routeSvg" class="route-svg" viewBox="0 0 900 520" preserveAspectRatio="none">
+            <defs>
+              <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                <polygon points="0 0, 6 3, 0 6" fill="#e62020"/>
+              </marker>
+            </defs>
+            <path id="routePath"></path>
+          </svg>
+          <!-- Nodes injected by JS -->
+          <div id="nodesLayer"></div>
+        </div>
+      </div>
+
+      <!-- All-paths list -->
+      <div id="allPathsPanel" class="all-paths-panel" style="display:none">
+        <h4>All Shortest Paths</h4>
+        <div id="allPathsList"></div>
+      </div>
+
+      <!-- Result box -->
+      <div class="result-box">
+        <h3>Result</h3>
+        <div class="result-grid">
+          <div><strong>Algorithm:</strong><span id="algoName">—</span></div>
+          <div><strong>Visited&nbsp;Order:</strong><span id="visitedOrder">—</span></div>
+          <div><strong>Nodes Visited:</strong><span id="visitedNodes">—</span></div>
+          <div><strong>Final Path:</strong><span id="pathNodes">—</span></div>
+          <div><strong>Path Cost:</strong><span id="pathCost">—</span></div>
+          <div><strong>Elapsed:</strong><span id="elapsedMs">—</span></div>
+          <div><strong>Heuristic (h₀):</strong><span id="heuristicValue">—</span></div>
+          <div class="full-row"><strong>A* Node Details:</strong><span id="astarDetails">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB 2 – COMPARE                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="tab-compare" class="tab-content">
+    <div class="panel">
+      <h2 class="section-title">Algorithm Comparison</h2>
+      <p class="section-sub">Select the same Start &amp; End used in Visualizer, then click Compare All.</p>
+      <div class="ctrl-bar">
+        <div class="ctrl-group">
+          <label class="ctrl-label">Start Node</label>
+          <select id="cmpStart"></select>
+        </div>
+        <div class="ctrl-group">
+          <label class="ctrl-label">End Node</label>
+          <select id="cmpEnd"></select>
+        </div>
+        <div class="ctrl-group">
+          <button id="compareBtn" class="btn btn-run">Compare All</button>
+        </div>
+      </div>
+      <div id="compareTable" class="compare-table-wrap"></div>
+      <canvas id="compareChart" class="compare-chart" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB 3 – CUSTOM GRAPH                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="tab-custom" class="tab-content">
+    <div class="panel">
+      <h2 class="section-title">Custom Graph Editor</h2>
+      <p class="section-sub">
+        Edit the adjacency list (JSON). Click <em>Apply</em> to use it in the Visualizer.
+        Click <em>Reset to Default</em> to restore the original graph.
+      </p>
+      <div class="editor-wrap">
+        <textarea id="graphJson" rows="22" spellcheck="false"></textarea>
+        <div class="editor-actions">
+          <button id="validateBtn"  class="btn btn-step">✔ Validate</button>
+          <button id="applyBtn"     class="btn btn-run">Apply Graph</button>
+          <button id="restoreBtn"   class="btn btn-reset">Reset to Default</button>
+        </div>
+        <div id="validateMsg" class="validate-msg"></div>
+      </div>
+      <p class="section-sub" style="margin-top:12px">
+        <strong>Format:</strong>
+        <code>{"graph": {"A": {"B": 4, "C": 2}, ...}, "node_pos": {"A": [70, 360], ...}}</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB 4 – HISTORY                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="tab-history" class="tab-content">
+    <div class="panel">
+      <h2 class="section-title">Search History <button id="clearHistBtn" class="btn btn-reset" style="font-size:13px">Clear</button></h2>
+      <div id="historyTable" class="compare-table-wrap"></div>
+    </div>
+  </div>
+
+</div><!-- .app -->
+
+<script src="/static/script.js"></script>
+</body>
+</html>
