@@ -1,5 +1,6 @@
 // ─── Config ──────────────────────────────────────────────────────────────────
-const API_URL = "";
+const API_URL = "/search";
+
 // Node center positions (px) matching index.html layout
 const NODE_POS = {
   A: { x: 93,  y: 383 },
