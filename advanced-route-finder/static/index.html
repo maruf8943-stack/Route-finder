@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Route Finder Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">Route Finder Visualizer</div>
+
+      <div class="controls">
+        <button class="algo-btn active" data-algo="bfs">BFS</button>
+        <button class="algo-btn" data-algo="dfs">DFS</button>
+        <button class="algo-btn" data-algo="astar">A*</button>
+        <button id="runBtn" class="run-btn">Run</button>
+        <button id="resetBtn" class="reset-btn">Reset</button>
+
+        <div class="speed-box">
+          <label for="speedRange">Timer</label>
+          <input type="range" id="speedRange" min="200" max="1500" step="100" value="700">
+          <span id="speedValue">700 ms</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="route-title">
+        <h2>
+          Start: <span id="startName">Not Selected</span> |
+          End: <span id="endName">Not Selected</span>
+        </h2>
+        <p id="statusText">Click one node for Start, then another node for Destination.</p>
+      </div>
+
+      <div class="instruction-box">
+        <p><strong>Educational Notes:</strong></p>
+        <p><b>BFS</b> searches level-wise.</p>
+        <p><b>DFS</b> searches depth-wise.</p>
+        <p><b>A*</b> searches using path cost + heuristic value.</p>
+      </div>
+
+      <div class="map-wrap">
+        <div class="map-box">
+    
+
+          <svg id="edgeSvg" class="edge-svg" viewBox="0 0 900 520" preserveAspectRatio="none"></svg>
+          <svg id="routeSvg" class="route-svg" viewBox="0 0 900 520" preserveAspectRatio="none">
+            <path id="routePath"></path>
+          </svg>
+
+          <div class="map-node big start-style" data-node="A" style="left:70px; top:360px;">
+            <span class="node-name">A</span>
+            <span class="heuristic" id="h-A">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="B" style="left:140px; top:120px;">
+            <span class="node-name">B</span>
+            <span class="heuristic" id="h-B">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="C" style="left:250px; top:90px;">
+            <span class="node-name">C</span>
+            <span class="heuristic" id="h-C">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="D" style="left:360px; top:130px;">
+            <span class="node-name">D</span>
+            <span class="heuristic" id="h-D">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="E" style="left:240px; top:250px;">
+            <span class="node-name">E</span>
+            <span class="heuristic" id="h-E">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="F" style="left:380px; top:250px;">
+            <span class="node-name">F</span>
+            <span class="heuristic" id="h-F">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="G" style="left:520px; top:230px;">
+            <span class="node-name">G</span>
+            <span class="heuristic" id="h-G">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="H" style="left:650px; top:170px;">
+            <span class="node-name">H</span>
+            <span class="heuristic" id="h-H">h:0</span>
+          </div>
+
+          <div class="map-node" data-node="I" style="left:600px; top:340px;">
+            <span class="node-name">I</span>
+            <span class="heuristic" id="h-I">h:0</span>
+          </div>
+
+          <div class="map-node goal-style" data-node="J" style="left:760px; top:90px;">
+            <span class="node-name">J</span>
+            <span class="heuristic" id="h-J">h:0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <h3>Current Result</h3>
+        <p><strong>Algorithm:</strong> <span id="algoName">-</span></p>
+        <p><strong>Visited Order:</strong> <span id="visitedOrder">-</span></p>
+        <p><strong>Visited Nodes Count:</strong> <span id="visitedNodes">-</span></p>
+        <p><strong>Final Path:</strong> <span id="pathNodes">-</span></p>
+        <p><strong>Path Cost:</strong> <span id="pathCost">-</span></p>
+        <p><strong>Heuristic(Start→Goal):</strong> <span id="heuristicValue">-</span></p>
+        <p><strong>A* Node Details:</strong> <span id="astarDetails">-</span></p>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
