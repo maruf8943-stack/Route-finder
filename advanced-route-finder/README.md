@@ -7,7 +7,7 @@ An advanced graph search visualizer built with **Python Flask** (backend) and **
 | Feature | Details |
 |---|---|
 | **7 Algorithms** | BFS, DFS, Dijkstra, A* (Euclidean & Manhattan), Greedy Best-First, Bidirectional BFS, All Shortest Paths |
-| **Step Mode** | Click ⏭ Step to advance the animation one node at a time |
+| **Step Mode** | Click  Step to advance the animation one node at a time |
 | **Compare Tab** | Run all algorithms at once and compare cost, visited count, path length, execution time with a bar chart |
 | **Custom Graph Editor** | Edit graph JSON, validate, and apply custom graphs |
 | **Search History** | Last 50 searches stored server-side and viewable in the History tab |
